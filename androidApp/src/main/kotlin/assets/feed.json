@@ -1,0 +1,23 @@
+{
+  "id": "home_feed",
+  "type": "list",
+  "orientation": "vertical",
+  "children": [
+    {
+      "id": "pokemon_card",
+      "type": "card",
+      "children": [
+        {
+          "id": "pokemon_name",
+          "type": "text",
+          "text": "Charizard"
+        },
+        {
+          "id": "pokemon_image",
+          "type": "image",
+          "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png"
+        }
+      ]
+    }
+  ]
+}

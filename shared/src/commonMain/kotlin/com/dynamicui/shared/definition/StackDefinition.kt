@@ -1,0 +1,20 @@
+package com.dynamicui.shared.definition
+
+import com.dynamicui.shared.domain.model.UiAction
+import com.dynamicui.shared.domain.value.ComponentId
+import com.dynamicui.shared.domain.value.StyleId
+import com.dynamicui.shared.model.Orientation
+
+data class StackDefinition(
+
+    override val id: ComponentId,
+
+    val orientation: Orientation,
+
+    override val styleId: StyleId? = null,
+
+    override val action: UiAction? = null,
+
+    val children: List<ComponentDefinition>
+
+) : ComponentDefinition
