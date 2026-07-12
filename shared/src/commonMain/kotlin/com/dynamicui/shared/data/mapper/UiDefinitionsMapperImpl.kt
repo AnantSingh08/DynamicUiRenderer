@@ -22,7 +22,7 @@ import com.dynamicui.shared.domain.value.ComponentId
 import com.dynamicui.shared.domain.value.LayoutId
 import com.dynamicui.shared.domain.value.StyleId
 import com.dynamicui.shared.model.Orientation
-import com.dynamicui.shared.style.Style
+import com.dynamicui.shared.model.Style
 
 class UiDefinitionsMapperImpl : UiDefinitionsMapper {
 
@@ -46,10 +46,17 @@ class UiDefinitionsMapperImpl : UiDefinitionsMapper {
 
     private fun mapStyle(dto: StyleDefinitionDto): Style {
         return Style(
+            width = dto.width,
+            height = dto.height,
+            spacing = dto.spacing,
             backgroundColor = dto.backgroundColor,
             textColor = dto.textColor,
-            padding = dto.padding,
-            cornerRadius = dto.cornerRadius,
+            fontSize = dto.fontSize,
+            fontWeight = dto.fontWeight,
+            alignment = dto.alignment,
+
+            padding = StyleValueMapper.toPadding(dto.padding),
+            cornerRadius = StyleValueMapper.toCornerRadius(dto.cornerRadius),
         )
     }
 

@@ -1,4 +1,4 @@
-package com.dynamicui.shared.domain.model
+package com.dynamicui.shared.model
 
 sealed interface UiAction
 

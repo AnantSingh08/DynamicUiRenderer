@@ -20,7 +20,7 @@ import com.dynamicui.shared.model.StackNode
 import com.dynamicui.shared.model.TextNode
 import com.dynamicui.shared.model.UiNode
 import com.dynamicui.shared.runtime.registry.StyleRegistry
-import com.dynamicui.shared.style.Style
+import com.dynamicui.shared.model.Style
 
 class UiRuntimeResolverImpl(
     private val bindingResolver: BindingResolver,

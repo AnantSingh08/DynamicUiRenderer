@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.dynamicui.presentation.home.HomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,17 +23,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    Text("Dynamic UI Renderer")
+                    HomeScreen()
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun MainPreview() {
-    MaterialTheme {
-        Text("Dynamic UI Renderer")
     }
 }

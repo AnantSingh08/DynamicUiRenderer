@@ -1,7 +1,7 @@
 package com.dynamicui.shared.runtime.registry
 
 import com.dynamicui.shared.domain.value.StyleId
-import com.dynamicui.shared.style.Style
+import com.dynamicui.shared.model.Style
 
 interface StyleRegistry {
 

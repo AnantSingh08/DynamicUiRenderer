@@ -1,6 +1,6 @@
 package com.dynamicui.shared.domain.model
 
-import com.dynamicui.shared.domain.model.UiAction
+import com.dynamicui.shared.model.UiAction
 import com.dynamicui.shared.domain.value.BindingKey
 import com.dynamicui.shared.domain.value.ComponentId
 import com.dynamicui.shared.domain.value.LayoutId

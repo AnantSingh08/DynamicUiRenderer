@@ -7,11 +7,23 @@ data class StyleDefinitionDto(
 
     val id: String,
 
-    val backgroundColor: String?,
+    val width: Int? = null,
 
-    val textColor: String?,
+    val height: Int? = null,
 
-    val padding: Int?,
+    val padding: String? = null,
 
-    val cornerRadius: Int?
+    val spacing: Int? = null,
+
+    val backgroundColor: String? = null,
+
+    val textColor: String? = null,
+
+    val fontSize: Int? = null,
+
+    val fontWeight: String? = null,
+
+    val cornerRadius: String? = null,
+
+    val alignment: String? = null
 )
