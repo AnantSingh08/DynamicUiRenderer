@@ -3,10 +3,6 @@ package com.dynamicui.shared.runtime.binding
 import com.dynamicui.shared.domain.value.BindingKey
 import com.dynamicui.shared.domain.value.UiValue
 
-interface BindingResolver {
-
-    fun resolve(
-        binding: BindingKey?,
-        context: BindingContext
-    ): UiValue?
-}
+data class BindingContext(
+    val data: Map<BindingKey, UiValue>
+)

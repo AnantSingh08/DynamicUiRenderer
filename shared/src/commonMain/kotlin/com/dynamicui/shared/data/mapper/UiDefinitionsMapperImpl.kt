@@ -55,7 +55,8 @@ class UiDefinitionsMapperImpl : UiDefinitionsMapper {
             fontWeight = dto.fontWeight,
             alignment = dto.alignment,
 
-            padding = StyleValueMapper.toPadding(dto.padding),
+            padding = StyleValueMapper.toEdgeInsets(dto.padding),
+            margin = StyleValueMapper.toEdgeInsets(dto.margin),
             cornerRadius = StyleValueMapper.toCornerRadius(dto.cornerRadius),
         )
     }
@@ -96,6 +97,7 @@ class UiDefinitionsMapperImpl : UiDefinitionsMapper {
             is ListDefinitionDto -> ListDefinition(
                 id = ComponentId(dto.id),
                 orientation = mapOrientation(dto.orientation),
+                binding = BindingKey(dto.binding),
                 styleId = dto.styleId?.let(::StyleId),
                 action = ActionMapper.map(dto.action),
                 children = dto.children.map(::mapComponent),

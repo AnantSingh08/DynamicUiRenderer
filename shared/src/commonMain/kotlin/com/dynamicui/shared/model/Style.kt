@@ -3,7 +3,8 @@ package com.dynamicui.shared.model
 data class Style(
     val width: Int? = null,
     val height: Int? = null,
-    val padding: Padding? = null,
+    val margin: EdgeInsets? = null,
+    val padding: EdgeInsets? = null,
     val spacing: Int? = null,
     val backgroundColor: String? = null,
     val textColor: String? = null,

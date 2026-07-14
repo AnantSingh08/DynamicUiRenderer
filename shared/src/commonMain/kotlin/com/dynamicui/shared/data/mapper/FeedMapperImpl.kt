@@ -14,7 +14,13 @@ import com.dynamicui.shared.domain.value.NumberValue
 import com.dynamicui.shared.domain.value.ObjectValue
 import com.dynamicui.shared.domain.value.StringValue
 import com.dynamicui.shared.domain.value.UiValue
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
 
 class FeedMapperImpl : FeedMapper {
 
@@ -76,7 +82,10 @@ class FeedMapperImpl : FeedMapper {
 
                 ListValue(
 
-                    element.map(::mapUiValue)
+                    element.mapNotNull {
+
+                        mapUiValue(it) as? ObjectValue
+                    }
                 )
             }
 

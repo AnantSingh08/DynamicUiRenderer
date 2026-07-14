@@ -13,6 +13,8 @@ data class StyleDefinitionDto(
 
     val padding: String? = null,
 
+    val margin: String? = null,
+
     val spacing: Int? = null,
 
     val backgroundColor: String? = null,

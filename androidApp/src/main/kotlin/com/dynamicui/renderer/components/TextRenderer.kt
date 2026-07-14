@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.dynamicui.presentation.renderer.modifier.ModifierMapper
 import com.dynamicui.presentation.renderer.modifier.TextStyleMapper
+import com.dynamicui.renderer.action.clickableAction
 import com.dynamicui.shared.model.TextNode
 import com.dynamicui.shared.model.UiAction
 
@@ -15,14 +16,19 @@ fun TextRenderer(
     onAction: (UiAction) -> Unit
 ) {
 
-    Text(
-        text = node.text,
-        modifier = ModifierMapper.map(
+    val mappedModifier = ModifierMapper
+        .map(
             style = node.style,
             modifier = modifier
-        ),
-        style = TextStyleMapper.map(
-            node.style
         )
+        .clickableAction(
+            action = node.action,
+            onAction = onAction
+        )
+
+    Text(
+        text = node.text,
+        modifier = mappedModifier,
+        style = TextStyleMapper.map(node.style)
     )
 }

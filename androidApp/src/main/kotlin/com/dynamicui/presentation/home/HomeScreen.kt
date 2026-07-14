@@ -40,7 +40,8 @@ fun HomeScreen(
             ) {
 
                 UiRenderer(
-                    nodes = state.nodes
+                    nodes = state.nodes,
+                    onAction = viewModel::onAction
                 )
             }
         }

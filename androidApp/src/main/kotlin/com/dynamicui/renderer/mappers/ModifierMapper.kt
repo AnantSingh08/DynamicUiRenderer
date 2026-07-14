@@ -29,14 +29,14 @@ object ModifierMapper {
             result = result.height(it.dp)
         }
 
-        style.padding?.let { padding ->
+        style.margin?.let { margin ->
 
             result = result.padding(
                 PaddingValues(
-                    start = padding.left.dp,
-                    top = padding.top.dp,
-                    end = padding.right.dp,
-                    bottom = padding.bottom.dp
+                    start = margin.left.dp,
+                    top = margin.top.dp,
+                    end = margin.right.dp,
+                    bottom = margin.bottom.dp
                 )
             )
         }

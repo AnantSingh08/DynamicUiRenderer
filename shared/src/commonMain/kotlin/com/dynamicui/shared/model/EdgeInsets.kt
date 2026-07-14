@@ -1,6 +1,6 @@
 package com.dynamicui.shared.model
 
-data class Padding(
+data class EdgeInsets(
     val top: Int,
     val right: Int,
     val bottom: Int,

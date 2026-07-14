@@ -9,18 +9,20 @@ import com.dynamicui.shared.definition.TextDefinition
 import com.dynamicui.shared.domain.model.FeedItem
 import com.dynamicui.shared.domain.model.LayoutDefinition
 import com.dynamicui.shared.domain.value.BindingKey
+import com.dynamicui.shared.domain.value.ListValue
 import com.dynamicui.shared.domain.value.StyleId
 import com.dynamicui.shared.domain.value.UiValue
 import com.dynamicui.shared.domain.value.asString
-import com.dynamicui.shared.runtime.binding.BindingResolver
 import com.dynamicui.shared.model.CardNode
 import com.dynamicui.shared.model.ImageNode
 import com.dynamicui.shared.model.ListNode
 import com.dynamicui.shared.model.StackNode
+import com.dynamicui.shared.model.Style
 import com.dynamicui.shared.model.TextNode
 import com.dynamicui.shared.model.UiNode
+import com.dynamicui.shared.runtime.binding.BindingContext
+import com.dynamicui.shared.runtime.binding.BindingResolver
 import com.dynamicui.shared.runtime.registry.StyleRegistry
-import com.dynamicui.shared.model.Style
 
 class UiRuntimeResolverImpl(
     private val bindingResolver: BindingResolver,
@@ -32,15 +34,19 @@ class UiRuntimeResolverImpl(
         feedItem: FeedItem
     ): UiNode {
 
+        val context = BindingContext(
+            data = feedItem.data
+        )
+
         return resolveComponent(
             component = layout.root,
-            feedItem = feedItem
+            context = context
         )
     }
 
     private fun resolveComponent(
         component: ComponentDefinition,
-        feedItem: FeedItem
+        context: BindingContext
     ): UiNode {
 
         return when (component) {
@@ -48,38 +54,38 @@ class UiRuntimeResolverImpl(
             is CardDefinition ->
                 resolveCard(
                     component,
-                    feedItem
+                    context
                 )
 
             is StackDefinition ->
                 resolveStack(
                     component,
-                    feedItem
+                    context
                 )
 
             is ListDefinition ->
                 resolveList(
                     component,
-                    feedItem
+                    context
                 )
 
             is TextDefinition ->
                 resolveText(
                     component,
-                    feedItem
+                    context
                 )
 
             is ImageDefinition ->
                 resolveImage(
                     component,
-                    feedItem
+                    context
                 )
         }
     }
 
     private fun resolveCard(
         definition: CardDefinition,
-        feedItem: FeedItem
+        context: BindingContext
     ): CardNode {
 
         return CardNode(
@@ -94,14 +100,14 @@ class UiRuntimeResolverImpl(
 
             children = resolveChildren(
                 definition.children,
-                feedItem
+                context
             )
         )
     }
 
     private fun resolveStack(
         definition: StackDefinition,
-        feedItem: FeedItem
+        context: BindingContext
     ): StackNode {
 
         return StackNode(
@@ -118,45 +124,54 @@ class UiRuntimeResolverImpl(
 
             children = resolveChildren(
                 definition.children,
-                feedItem
+                context
             )
         )
     }
 
     private fun resolveList(
         definition: ListDefinition,
-        feedItem: FeedItem
+        context: BindingContext
     ): ListNode {
 
+        val listValue = resolveBinding(
+            definition.binding,
+            context
+        ) as? ListValue ?: ListValue(emptyList())
+
+        val items = listValue.values.map { objectValue ->
+
+            val itemContext = BindingContext(
+                data = objectValue.values
+            )
+
+            resolveChildren(
+                children = definition.children,
+                context = itemContext
+            )
+        }
+
         return ListNode(
-
             id = definition.id,
-
             orientation = definition.orientation,
-
             style = resolveStyle(
                 definition.styleId
             ),
-
             action = definition.action,
-
-            children = resolveChildren(
-                definition.children,
-                feedItem
-            )
+            items = items
         )
     }
 
     private fun resolveText(
         definition: TextDefinition,
-        feedItem: FeedItem
+        context: BindingContext
     ): TextNode {
 
         val resolvedText =
             definition.text
                 ?: resolveBinding(
                     definition.binding,
-                    feedItem
+                    context
                 )?.asString()
                 ?: ""
 
@@ -172,14 +187,14 @@ class UiRuntimeResolverImpl(
 
     private fun resolveImage(
         definition: ImageDefinition,
-        feedItem: FeedItem
+        context: BindingContext
     ): ImageNode {
 
         val resolvedUrl =
             definition.url
                 ?: resolveBinding(
                     definition.binding,
-                    feedItem
+                    context
                 )?.asString()
                 ?: ""
 
@@ -206,25 +221,25 @@ class UiRuntimeResolverImpl(
 
     private fun resolveBinding(
         binding: BindingKey?,
-        feedItem: FeedItem
+        context: BindingContext
     ): UiValue? {
 
         return bindingResolver.resolve(
             binding = binding,
-            data = feedItem.data
+            context = context
         )
     }
 
     private fun resolveChildren(
         children: List<ComponentDefinition>,
-        feedItem: FeedItem
+        context: BindingContext
     ): List<UiNode> {
 
         return children.map { child ->
 
             resolveComponent(
                 component = child,
-                feedItem = feedItem
+                context = context
             )
         }
     }

@@ -12,6 +12,6 @@ data class ListNode(
 
     override val action: UiAction?,
 
-    val children: List<UiNode>
+    val items: List<List<UiNode>>
 
 ) : UiNode

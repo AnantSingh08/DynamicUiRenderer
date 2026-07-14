@@ -1,15 +1,15 @@
 package com.dynamicui.shared.data.mapper
 
 import com.dynamicui.shared.model.CornerRadius
-import com.dynamicui.shared.model.Padding
+import com.dynamicui.shared.model.EdgeInsets
 
 internal object StyleValueMapper {
 
-    fun toPadding(value: String?): Padding? {
+    fun toEdgeInsets(value: String?): EdgeInsets? {
 
         val values = parseFourValues(value) ?: return null
 
-        return Padding(
+        return EdgeInsets(
             top = values[0],
             right = values[1],
             bottom = values[2],

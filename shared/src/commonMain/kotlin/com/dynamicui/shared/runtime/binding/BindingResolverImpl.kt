@@ -7,12 +7,12 @@ class BindingResolverImpl : BindingResolver {
 
     override fun resolve(
         binding: BindingKey?,
-        data: Map<BindingKey, UiValue>
+        context: BindingContext
     ): UiValue? {
 
         if (binding == null)
             return null
 
-        return data[binding]
+        return context.data[binding]
     }
 }

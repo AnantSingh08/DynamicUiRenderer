@@ -12,6 +12,8 @@ data class ListDefinitionDto(
 
     val orientation: String,
 
+    val binding: String,
+
     override val styleId: String? = null,
 
     override val action: UiActionDto? = null,

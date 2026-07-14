@@ -10,10 +10,10 @@ fun UiValue.asBoolean(): Boolean? =
     (this as? BooleanValue)?.value
 
 fun UiValue.asObject(): Map<BindingKey, UiValue>? =
-    (this as? ObjectValue)?.value
+    (this as? ObjectValue)?.values
 
 fun UiValue.asList(): List<UiValue>? =
-    (this as? ListValue)?.value
+    (this as? ListValue)?.values
 
 fun UiValue.isNull(): Boolean =
     this is NullValue

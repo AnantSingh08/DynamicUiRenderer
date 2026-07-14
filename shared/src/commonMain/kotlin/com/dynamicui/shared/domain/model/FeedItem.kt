@@ -1,10 +1,10 @@
 package com.dynamicui.shared.domain.model
 
-import com.dynamicui.shared.model.UiAction
 import com.dynamicui.shared.domain.value.BindingKey
 import com.dynamicui.shared.domain.value.ComponentId
 import com.dynamicui.shared.domain.value.LayoutId
 import com.dynamicui.shared.domain.value.UiValue
+import com.dynamicui.shared.model.UiAction
 
 data class FeedItem(
 

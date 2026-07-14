@@ -3,6 +3,9 @@ package com.dynamicui.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dynamicui.shared.bootstrap.DynamicUiRenderer
+import com.dynamicui.shared.model.NavigateAction
+import com.dynamicui.shared.model.ToastAction
+import com.dynamicui.shared.model.UiAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,6 +53,22 @@ class HomeViewModel @Inject constructor(
                 _uiState.value = HomeUIState.Error(
                     message = it.message ?: "Something went wrong (Unknown Error)"
                 )
+            }
+        }
+    }
+
+    fun onAction(
+        action: UiAction
+    ) {
+
+        when(action) {
+
+            is NavigateAction -> {
+                // TODO
+            }
+
+            is ToastAction -> {
+                // TODO
             }
         }
     }

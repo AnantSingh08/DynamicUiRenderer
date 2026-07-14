@@ -2,11 +2,10 @@ package com.dynamicui.presentation.renderer.modifier
 
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
+import com.dynamicui.renderer.mappers.ColorMapper
 import com.dynamicui.shared.model.Style
 
 object TextStyleMapper {
@@ -18,9 +17,7 @@ object TextStyleMapper {
 
         return TextStyle(
 
-            color = style
-                ?.textColor
-                ?.let { Color(it.toColorInt()) }
+            color = ColorMapper.map(style?.textColor)
                 ?: LocalContentColor.current,
 
             fontSize = style

@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.dynamicui.presentation.renderer.modifier.ModifierMapper
 import com.dynamicui.renderer.UiRenderer
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.renderer.extensions.padding
 import com.dynamicui.shared.model.Orientation
 import com.dynamicui.shared.model.StackNode
+import com.dynamicui.shared.model.UiAction
 
 @Composable
 fun StackRenderer(
@@ -17,27 +19,34 @@ fun StackRenderer(
 ) {
     val content: @Composable () -> Unit = {
 
-        node.children.forEach { child ->
-
-            UiRenderer(
-                node = child,
-                onAction = onAction
-            )
-        }
+        UiRenderer(
+            nodes = node.children,
+            onAction = onAction
+        )
     }
 
     when (node.orientation) {
 
         Orientation.VERTICAL ->
             Column(
-                modifier = modifier
+                modifier = ModifierMapper
+                    .map(
+                        style = node.style,
+                        modifier = modifier
+                    )
+                    .padding(node.style?.padding)
             ) {
                 content()
             }
 
         Orientation.HORIZONTAL ->
             Row(
-                modifier = modifier
+                modifier = ModifierMapper
+                    .map(
+                        style = node.style,
+                        modifier = modifier
+                    )
+                    .padding(node.style?.padding)
             ) {
                 content()
             }
