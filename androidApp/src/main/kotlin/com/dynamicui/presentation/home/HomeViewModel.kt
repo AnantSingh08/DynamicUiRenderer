@@ -7,8 +7,11 @@ import com.dynamicui.shared.model.NavigateAction
 import com.dynamicui.shared.model.ToastAction
 import com.dynamicui.shared.model.UiAction
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,27 +21,25 @@ class HomeViewModel @Inject constructor(
     private val renderer: DynamicUiRenderer
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<HomeUIState>(
-        HomeUIState.Loading
-    )
+    private val _uiState =
+        MutableStateFlow<HomeUIState>(
+            HomeUIState.Loading
+        )
 
-    val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
+    val uiState: StateFlow<HomeUIState> =
+        _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<HomeUiEvent>()
+
+    val events: SharedFlow<HomeUiEvent> =
+        _events.asSharedFlow()
 
     init {
-        onEvent(HomeEvent.LoadScreen)
-    }
-
-    fun onEvent(
-        event: HomeEvent
-    ) {
-        when (event) {
-            HomeEvent.LoadScreen -> {
-                loadHome()
-            }
-        }
+        loadHome()
     }
 
     private fun loadHome() {
+
         viewModelScope.launch {
 
             runCatching {
@@ -48,27 +49,41 @@ class HomeViewModel @Inject constructor(
                 )
 
             }.onSuccess { nodes ->
-                _uiState.value = HomeUIState.Success(nodes)
+
+                _uiState.value =
+                    HomeUIState.Success(nodes)
+
             }.onFailure {
-                _uiState.value = HomeUIState.Error(
-                    message = it.message ?: "Something went wrong (Unknown Error)"
-                )
+
+                _uiState.value =
+                    HomeUIState.Error(
+                        it.message ?: "Unknown error"
+                    )
             }
         }
     }
 
-    fun onAction(
-        action: UiAction
-    ) {
+    fun onAction(action: UiAction) {
 
-        when(action) {
+        viewModelScope.launch {
 
-            is NavigateAction -> {
-                // TODO
-            }
+            when (action) {
 
-            is ToastAction -> {
-                // TODO
+                is NavigateAction -> {
+                    _events.emit(
+                        HomeUiEvent.Navigate(
+                            destination = action.destination
+                        )
+                    )
+                }
+
+                is ToastAction -> {
+                    _events.emit(
+                        HomeUiEvent.ShowToast(
+                            message = action.message
+                        )
+                    )
+                }
             }
         }
     }

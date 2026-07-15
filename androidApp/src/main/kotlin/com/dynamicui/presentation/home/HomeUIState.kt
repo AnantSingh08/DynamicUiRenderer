@@ -14,8 +14,3 @@ sealed interface HomeUIState {
         val message: String
     ): HomeUIState
 }
-
-sealed interface HomeEvent {
-
-    data object LoadScreen : HomeEvent
-}

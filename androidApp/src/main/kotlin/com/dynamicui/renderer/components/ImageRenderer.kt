@@ -35,8 +35,23 @@ fun ImageRenderer(
 
     AsyncImage(
         model = node.url,
+
         contentDescription = null,
+
         modifier = mappedModifier,
-        contentScale = ContentScale.Crop
+
+        contentScale = ContentScale.Fit,
+
+//        placeholder = painterResource(
+//            R.drawable.ic_image_placeholder
+//        ),
+//
+//        error = painterResource(
+//            R.drawable.ic_broken_image
+//        ),
+//
+//        fallback = painterResource(
+//            R.drawable.ic_broken_image
+//        )
     )
 }

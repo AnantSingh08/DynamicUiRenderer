@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.dynamicui.navigation.AppNavGraph
 import com.dynamicui.presentation.home.HomeScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,9 +20,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    HomeScreen()
-                }
+                AppNavGraph()
             }
         }
     }

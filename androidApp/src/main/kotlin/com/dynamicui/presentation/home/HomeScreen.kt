@@ -1,56 +1,92 @@
 package com.dynamicui.presentation.home
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.dynamicui.renderer.UiRenderer
 
 @Composable
 fun HomeScreen(
+    navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    when (
-        val state = viewModel.uiState.collectAsState().value
-    ) {
-        HomeUIState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+
+            when (event) {
+
+                is HomeUiEvent.Navigate ->
+                    navController.navigate(event.destination)
+
+                is HomeUiEvent.ShowToast ->
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
             }
         }
+    }
 
-        is HomeUIState.Success -> {
+    Scaffold { padding ->
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .safeDrawingPadding()
-            ) {
+        when (val state = viewModel.uiState.collectAsState().value) {
 
-                UiRenderer(
-                    nodes = state.nodes,
-                    onAction = viewModel::onAction
-                )
+            HomeUIState.Loading -> {
+
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        }
 
-        is HomeUIState.Error -> {
-            Text(
-                text = state.message,
-                color = colorScheme.error
-            )
+            is HomeUIState.Success -> {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+
+                    UiRenderer(
+                        nodes = state.nodes,
+                        onAction = viewModel::onAction
+                    )
+                }
+            }
+
+            is HomeUIState.Error -> {
+
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Text(
+                        text = state.message,
+                        color = colorScheme.error
+                    )
+                }
+            }
         }
     }
 }
