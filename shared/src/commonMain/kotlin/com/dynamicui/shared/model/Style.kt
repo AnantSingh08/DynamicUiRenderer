@@ -1,8 +1,8 @@
 package com.dynamicui.shared.model
 
 data class Style(
-    val width: Int? = null,
-    val height: Int? = null,
+    val width: Dimension? = null,
+    val height: Dimension? = null,
     val margin: EdgeInsets? = null,
     val padding: EdgeInsets? = null,
     val spacing: Int? = null,

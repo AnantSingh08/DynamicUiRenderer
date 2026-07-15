@@ -46,8 +46,8 @@ class UiDefinitionsMapperImpl : UiDefinitionsMapper {
 
     private fun mapStyle(dto: StyleDefinitionDto): Style {
         return Style(
-            width = dto.width,
-            height = dto.height,
+            width = StyleValueMapper.toDimension(dto.width),
+            height = StyleValueMapper.toDimension(dto.height),
             spacing = dto.spacing,
             backgroundColor = dto.backgroundColor,
             textColor = dto.textColor,

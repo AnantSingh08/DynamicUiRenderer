@@ -1,6 +1,7 @@
 package com.dynamicui.shared.data.mapper
 
 import com.dynamicui.shared.model.CornerRadius
+import com.dynamicui.shared.model.Dimension
 import com.dynamicui.shared.model.EdgeInsets
 
 internal object StyleValueMapper {
@@ -52,5 +53,20 @@ internal object StyleValueMapper {
         }
 
         return values
+    }
+
+    fun toDimension(value: String?): Dimension? {
+        return when (value?.lowercase()) {
+
+            "fill" -> Dimension.Fill
+
+            "wrap" -> Dimension.Wrap
+
+            null -> null
+
+            else -> value.toIntOrNull()?.let {
+                Dimension.Fixed(it)
+            }
+        }
     }
 }

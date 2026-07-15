@@ -1,11 +1,16 @@
 package com.dynamicui.presentation.renderer.modifier
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.dynamicui.shared.model.Dimension
 import com.dynamicui.shared.model.Style
 
 object ModifierMapper {
@@ -21,12 +26,34 @@ object ModifierMapper {
 
         var result = modifier
 
-        style.width?.let {
-            result = result.width(it.dp)
+        style.width?.let { width ->
+
+            result = when (width) {
+
+                Dimension.Fill ->
+                    result.fillMaxWidth()
+
+                Dimension.Wrap ->
+                    result.wrapContentWidth()
+
+                is Dimension.Fixed ->
+                    result.width(width.value.dp)
+            }
         }
 
-        style.height?.let {
-            result = result.height(it.dp)
+        style.height?.let { height ->
+
+            result = when (height) {
+
+                Dimension.Fill ->
+                    result.fillMaxHeight()
+
+                Dimension.Wrap ->
+                    result.wrapContentHeight()
+
+                is Dimension.Fixed ->
+                    result.height(height.value.dp)
+            }
         }
 
         style.margin?.let { margin ->

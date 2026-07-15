@@ -7,9 +7,9 @@ data class StyleDefinitionDto(
 
     val id: String,
 
-    val width: Int? = null,
+    val width: String? = null,
 
-    val height: Int? = null,
+    val height: String? = null,
 
     val padding: String? = null,
 
