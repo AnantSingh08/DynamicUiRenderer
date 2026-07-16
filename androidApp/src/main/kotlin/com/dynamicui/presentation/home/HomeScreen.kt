@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.dynamicui.presentation.common.ScreenUiState
+import com.dynamicui.presentation.common.UiEvent
 import com.dynamicui.renderer.UiRenderer
 
 @Composable
@@ -32,10 +34,10 @@ fun HomeScreen(
 
             when (event) {
 
-                is HomeUiEvent.Navigate ->
+                is UiEvent.Navigate ->
                     navController.navigate(event.destination)
 
-                is HomeUiEvent.ShowToast ->
+                is UiEvent.ShowToast ->
                     Toast.makeText(
                         context,
                         event.message,
@@ -49,7 +51,7 @@ fun HomeScreen(
 
         when (val state = viewModel.uiState.collectAsState().value) {
 
-            HomeUIState.Loading -> {
+            ScreenUiState.Loading -> {
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -59,7 +61,7 @@ fun HomeScreen(
                 }
             }
 
-            is HomeUIState.Success -> {
+            is ScreenUiState.Success -> {
 
                 Column(
                     modifier = Modifier
@@ -68,13 +70,13 @@ fun HomeScreen(
                 ) {
 
                     UiRenderer(
-                        nodes = state.nodes,
+                        nodes = state.data,
                         onAction = viewModel::onAction
                     )
                 }
             }
 
-            is HomeUIState.Error -> {
+            is ScreenUiState.Error -> {
 
                 Box(
                     modifier = Modifier.fillMaxSize(),

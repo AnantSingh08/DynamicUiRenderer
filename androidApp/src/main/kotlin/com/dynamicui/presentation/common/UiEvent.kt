@@ -1,12 +1,12 @@
-package com.dynamicui.presentation.home
+package com.dynamicui.presentation.common
 
-sealed interface HomeUiEvent {
+sealed interface UiEvent {
 
     data class Navigate(
         val destination: String
-    ) : HomeUiEvent
+    ) : UiEvent
 
     data class ShowToast(
         val message: String
-    ) : HomeUiEvent
+    ) : UiEvent
 }

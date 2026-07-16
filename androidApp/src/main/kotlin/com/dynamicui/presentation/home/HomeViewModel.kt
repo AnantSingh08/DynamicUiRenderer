@@ -2,10 +2,13 @@ package com.dynamicui.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dynamicui.presentation.common.ScreenUiState
+import com.dynamicui.presentation.common.UiEvent
 import com.dynamicui.shared.bootstrap.DynamicUiRenderer
 import com.dynamicui.shared.model.NavigateAction
 import com.dynamicui.shared.model.ToastAction
 import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.UiNode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,16 +25,16 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState =
-        MutableStateFlow<HomeUIState>(
-            HomeUIState.Loading
+        MutableStateFlow<ScreenUiState<List<UiNode>>>(
+            ScreenUiState.Loading
         )
 
-    val uiState: StateFlow<HomeUIState> =
+    val uiState: StateFlow<ScreenUiState<List<UiNode>>> =
         _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<HomeUiEvent>()
+    private val _events = MutableSharedFlow<UiEvent>()
 
-    val events: SharedFlow<HomeUiEvent> =
+    val events: SharedFlow<UiEvent> =
         _events.asSharedFlow()
 
     init {
@@ -51,12 +54,12 @@ class HomeViewModel @Inject constructor(
             }.onSuccess { nodes ->
 
                 _uiState.value =
-                    HomeUIState.Success(nodes)
+                    ScreenUiState.Success(nodes)
 
             }.onFailure {
 
                 _uiState.value =
-                    HomeUIState.Error(
+                    ScreenUiState.Error(
                         it.message ?: "Unknown error"
                     )
             }
@@ -71,7 +74,7 @@ class HomeViewModel @Inject constructor(
 
                 is NavigateAction -> {
                     _events.emit(
-                        HomeUiEvent.Navigate(
+                        UiEvent.Navigate(
                             destination = action.destination
                         )
                     )
@@ -79,7 +82,7 @@ class HomeViewModel @Inject constructor(
 
                 is ToastAction -> {
                     _events.emit(
-                        HomeUiEvent.ShowToast(
+                        UiEvent.ShowToast(
                             message = action.message
                         )
                     )

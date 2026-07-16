@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.dynamicui.presentation.common.ScreenUiState
+import com.dynamicui.presentation.common.UiEvent
 import com.dynamicui.renderer.UiRenderer
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,14 +42,14 @@ fun DetailsScreen(
 
             when (event) {
 
-                is DetailsUiEvent.Navigate -> {
+                is UiEvent.Navigate -> {
 
                     navController.navigate(
                         event.destination
                     )
                 }
 
-                is DetailsUiEvent.ShowToast -> {
+                is UiEvent.ShowToast -> {
 
                     Toast.makeText(
                         context,
@@ -90,7 +92,7 @@ fun DetailsScreen(
 
         when (val state = viewModel.uiState.collectAsState().value) {
 
-            DetailsUiState.Loading -> {
+            ScreenUiState.Loading -> {
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -100,7 +102,7 @@ fun DetailsScreen(
                 }
             }
 
-            is DetailsUiState.Success -> {
+            is ScreenUiState.Success -> {
 
                 Column(
                     modifier = Modifier
@@ -109,13 +111,13 @@ fun DetailsScreen(
                 ) {
 
                     UiRenderer(
-                        nodes = state.nodes,
+                        nodes = state.data,
                         onAction = viewModel::onAction
                     )
                 }
             }
 
-            is DetailsUiState.Error -> {
+            is ScreenUiState.Error -> {
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
