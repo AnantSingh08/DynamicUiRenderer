@@ -2,7 +2,7 @@ package com.dynamicui.renderer.action
 
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.Modifier
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.action.UiAction
 
 fun Modifier.clickableAction(
     action: UiAction?,

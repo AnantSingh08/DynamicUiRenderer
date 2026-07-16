@@ -7,13 +7,13 @@ import com.dynamicui.renderer.components.CardRenderer
 import com.dynamicui.renderer.components.ImageRenderer
 import com.dynamicui.renderer.components.ListRenderer
 import com.dynamicui.renderer.components.StackRenderer
-import com.dynamicui.shared.model.CardNode
-import com.dynamicui.shared.model.ImageNode
-import com.dynamicui.shared.model.ListNode
-import com.dynamicui.shared.model.StackNode
-import com.dynamicui.shared.model.TextNode
-import com.dynamicui.shared.model.UiAction
-import com.dynamicui.shared.model.UiNode
+import com.dynamicui.shared.model.node.CardNode
+import com.dynamicui.shared.model.node.ImageNode
+import com.dynamicui.shared.model.node.ListNode
+import com.dynamicui.shared.model.node.StackNode
+import com.dynamicui.shared.model.node.TextNode
+import com.dynamicui.shared.model.action.UiAction
+import com.dynamicui.shared.model.node.UiNode
 
 @Composable
 fun UiRenderer(

@@ -1,4 +1,4 @@
-package com.dynamicui.shared.model
+package com.dynamicui.shared.model.style
 
 data class Style(
     val width: Dimension? = null,
@@ -9,7 +9,7 @@ data class Style(
     val backgroundColor: String? = null,
     val textColor: String? = null,
     val fontSize: Int? = null,
-    val fontWeight: String? = null,
+    val fontWeight: FontWeight? = null,
     val cornerRadius: CornerRadius? = null,
-    val alignment: String? = null
+    val alignment: Alignment? = null
 )

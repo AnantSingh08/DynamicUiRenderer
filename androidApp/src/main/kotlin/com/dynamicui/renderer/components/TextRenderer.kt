@@ -6,8 +6,8 @@ import androidx.compose.ui.Modifier
 import com.dynamicui.presentation.renderer.modifier.ModifierMapper
 import com.dynamicui.presentation.renderer.modifier.TextStyleMapper
 import com.dynamicui.renderer.action.clickableAction
-import com.dynamicui.shared.model.TextNode
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.node.TextNode
+import com.dynamicui.shared.model.action.UiAction
 
 @Composable
 fun TextRenderer(

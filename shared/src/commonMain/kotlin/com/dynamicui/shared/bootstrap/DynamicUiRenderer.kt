@@ -2,7 +2,7 @@ package com.dynamicui.shared.bootstrap
 
 import com.dynamicui.shared.domain.usecase.InitializeDefinitionsUseCase
 import com.dynamicui.shared.domain.usecase.ResolveScreenUseCase
-import com.dynamicui.shared.model.UiNode
+import com.dynamicui.shared.model.node.UiNode
 import com.dynamicui.shared.runtime.state.InitializationState
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

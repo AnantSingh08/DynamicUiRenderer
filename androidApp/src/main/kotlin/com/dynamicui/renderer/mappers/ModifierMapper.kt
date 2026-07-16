@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.dynamicui.shared.model.Dimension
-import com.dynamicui.shared.model.Style
+import com.dynamicui.shared.model.style.Dimension
+import com.dynamicui.shared.model.style.Style
 
 object ModifierMapper {
 

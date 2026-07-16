@@ -8,9 +8,9 @@ import com.dynamicui.presentation.renderer.modifier.ModifierMapper
 import com.dynamicui.renderer.UiRenderer
 import com.dynamicui.renderer.extensions.padding
 import com.dynamicui.renderer.mappers.AlignmentMapper
-import com.dynamicui.shared.model.Orientation
-import com.dynamicui.shared.model.StackNode
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.common.Orientation
+import com.dynamicui.shared.model.node.StackNode
+import com.dynamicui.shared.model.action.UiAction
 
 @Composable
 fun StackRenderer(

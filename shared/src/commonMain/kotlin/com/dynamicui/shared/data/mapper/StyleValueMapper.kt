@@ -1,8 +1,10 @@
 package com.dynamicui.shared.data.mapper
 
-import com.dynamicui.shared.model.CornerRadius
-import com.dynamicui.shared.model.Dimension
-import com.dynamicui.shared.model.EdgeInsets
+import com.dynamicui.shared.model.style.Alignment
+import com.dynamicui.shared.model.style.CornerRadius
+import com.dynamicui.shared.model.style.Dimension
+import com.dynamicui.shared.model.style.EdgeInsets
+import com.dynamicui.shared.model.style.FontWeight
 
 internal object StyleValueMapper {
 
@@ -56,17 +58,60 @@ internal object StyleValueMapper {
     }
 
     fun toDimension(value: String?): Dimension? {
-        return when (value?.lowercase()) {
+
+        val normalized = value?.trim()?.lowercase()
+
+        return when (normalized) {
 
             "fill" -> Dimension.Fill
 
             "wrap" -> Dimension.Wrap
 
-            null -> null
+            null, "" -> null
 
-            else -> value.toIntOrNull()?.let {
+            else -> normalized.toIntOrNull()?.let {
                 Dimension.Fixed(it)
-            }
+            } ?: throw IllegalArgumentException(
+                "Unknown dimension '$value'"
+            )
+        }
+    }
+
+    fun toAlignment(value: String?): Alignment? {
+
+        return when (value?.trim()?.lowercase()) {
+
+            "start" -> Alignment.START
+
+            "center" -> Alignment.CENTER
+
+            "end" -> Alignment.END
+
+            null, "" -> null
+
+            else -> throw IllegalArgumentException(
+                "Unknown alignment '$value'"
+            )
+        }
+    }
+
+    fun toFontWeight(value: String?): FontWeight? {
+
+        return when (value?.trim()?.lowercase()) {
+
+            "normal" -> FontWeight.NORMAL
+
+            "medium" -> FontWeight.MEDIUM
+
+            "semibold" -> FontWeight.SEMIBOLD
+
+            "bold" -> FontWeight.BOLD
+
+            null, "" -> null
+
+            else -> throw IllegalArgumentException(
+                "Unknown font weight '$value'"
+            )
         }
     }
 }

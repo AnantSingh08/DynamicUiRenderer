@@ -2,8 +2,8 @@ package com.dynamicui.shared.definition
 
 import com.dynamicui.shared.domain.value.ComponentId
 import com.dynamicui.shared.domain.value.StyleId
-import com.dynamicui.shared.model.Orientation
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.common.Orientation
+import com.dynamicui.shared.model.action.UiAction
 
 data class StackDefinition(
 

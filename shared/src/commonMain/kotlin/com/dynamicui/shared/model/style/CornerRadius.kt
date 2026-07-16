@@ -1,4 +1,4 @@
-package com.dynamicui.shared.model
+package com.dynamicui.shared.model.style
 
 data class CornerRadius(
     val topStart: Int,

@@ -1,4 +1,4 @@
-package com.dynamicui.shared.model
+package com.dynamicui.shared.model.style
 
 sealed interface Dimension {
     data object Fill : Dimension

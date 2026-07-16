@@ -12,8 +12,8 @@ import com.dynamicui.renderer.action.clickableAction
 import com.dynamicui.renderer.extensions.padding
 import com.dynamicui.renderer.mappers.ColorMapper
 import com.dynamicui.renderer.mappers.ShapeMapper
-import com.dynamicui.shared.model.CardNode
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.node.CardNode
+import com.dynamicui.shared.model.action.UiAction
 
 @Composable
 fun CardRenderer(

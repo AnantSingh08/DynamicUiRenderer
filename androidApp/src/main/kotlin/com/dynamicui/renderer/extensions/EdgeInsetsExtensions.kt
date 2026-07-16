@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.dynamicui.shared.model.EdgeInsets
+import com.dynamicui.shared.model.style.EdgeInsets
 
 fun EdgeInsets.toPaddingValues(): PaddingValues =
     PaddingValues(

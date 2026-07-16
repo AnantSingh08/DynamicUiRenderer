@@ -3,7 +3,7 @@ package com.dynamicui.shared.domain.usecase
 import com.dynamicui.shared.domain.model.Feed
 import com.dynamicui.shared.domain.model.FeedItem
 import com.dynamicui.shared.domain.repository.FeedRepository
-import com.dynamicui.shared.model.UiNode
+import com.dynamicui.shared.model.node.UiNode
 import com.dynamicui.shared.runtime.registry.LayoutRegistry
 import com.dynamicui.shared.runtime.resolver.UiRuntimeResolver
 

@@ -21,8 +21,8 @@ import com.dynamicui.shared.domain.value.BindingKey
 import com.dynamicui.shared.domain.value.ComponentId
 import com.dynamicui.shared.domain.value.LayoutId
 import com.dynamicui.shared.domain.value.StyleId
-import com.dynamicui.shared.model.Orientation
-import com.dynamicui.shared.model.Style
+import com.dynamicui.shared.model.common.Orientation
+import com.dynamicui.shared.model.style.Style
 
 class UiDefinitionsMapperImpl : UiDefinitionsMapper {
 
@@ -52,8 +52,14 @@ class UiDefinitionsMapperImpl : UiDefinitionsMapper {
             backgroundColor = dto.backgroundColor,
             textColor = dto.textColor,
             fontSize = dto.fontSize,
-            fontWeight = dto.fontWeight,
-            alignment = dto.alignment,
+
+            fontWeight = StyleValueMapper.toFontWeight(
+                dto.fontWeight
+            ),
+
+            alignment = StyleValueMapper.toAlignment(
+                dto.alignment
+            ),
 
             padding = StyleValueMapper.toEdgeInsets(dto.padding),
             margin = StyleValueMapper.toEdgeInsets(dto.margin),

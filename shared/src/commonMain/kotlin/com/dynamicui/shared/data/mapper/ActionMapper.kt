@@ -3,9 +3,9 @@ package com.dynamicui.shared.data.mapper
 import com.dynamicui.shared.data.dto.action.NavigateActionDto
 import com.dynamicui.shared.data.dto.action.ToastActionDto
 import com.dynamicui.shared.data.dto.action.UiActionDto
-import com.dynamicui.shared.model.NavigateAction
-import com.dynamicui.shared.model.ToastAction
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.action.NavigateAction
+import com.dynamicui.shared.model.action.ToastAction
+import com.dynamicui.shared.model.action.UiAction
 
 object ActionMapper {
 

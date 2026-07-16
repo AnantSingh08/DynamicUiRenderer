@@ -8,8 +8,8 @@ import coil3.compose.AsyncImage
 import com.dynamicui.presentation.renderer.modifier.ModifierMapper
 import com.dynamicui.renderer.action.clickableAction
 import com.dynamicui.renderer.mappers.ShapeMapper
-import com.dynamicui.shared.model.ImageNode
-import com.dynamicui.shared.model.UiAction
+import com.dynamicui.shared.model.node.ImageNode
+import com.dynamicui.shared.model.action.UiAction
 
 @Composable
 fun ImageRenderer(

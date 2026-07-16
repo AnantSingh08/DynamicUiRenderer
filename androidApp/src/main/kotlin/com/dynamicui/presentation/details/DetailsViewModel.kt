@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.dynamicui.presentation.common.ScreenUiState
 import com.dynamicui.presentation.common.UiEvent
 import com.dynamicui.shared.bootstrap.DynamicUiRenderer
-import com.dynamicui.shared.model.NavigateAction
-import com.dynamicui.shared.model.ToastAction
-import com.dynamicui.shared.model.UiAction
-import com.dynamicui.shared.model.UiNode
+import com.dynamicui.shared.model.action.NavigateAction
+import com.dynamicui.shared.model.action.ToastAction
+import com.dynamicui.shared.model.action.UiAction
+import com.dynamicui.shared.model.node.UiNode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

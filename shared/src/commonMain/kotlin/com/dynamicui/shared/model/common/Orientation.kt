@@ -1,4 +1,4 @@
-package com.dynamicui.shared.model
+package com.dynamicui.shared.model.common
 
 enum class Orientation {
     VERTICAL,
