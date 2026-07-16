@@ -13,11 +13,11 @@ Definition             (definition/)
     ↓
 Mapper                 (data/mapper)
     ↓
-Runtime Node           (model/)
+Runtime Node           (model/node/)
     ↓
 Resolver               (runtime/resolver)
     ↓
-Compose Renderer       (androidApp)
+Compose Renderer       (androidApp/renderer)
 ```
 
 Touch **one layer at a time**. Never skip a step.
@@ -35,9 +35,9 @@ When adding a component (e.g. `button`), update these files:
 | 3 | Serialization | `data/network/SerializationModule.kt` | Register subclass |
 | 4 | Definition | `definition/ButtonDefinition.kt` | Create |
 | 5 | Mapper | `data/mapper/UiDefinitionsMapperImpl.kt` | Add `when` branch |
-| 6 | Runtime node | `model/ButtonNode.kt` | Create |
+| 6 | Runtime node | `model/node/ButtonNode.kt` | Create |
 | 7 | Resolver | `runtime/resolver/UiRuntimeResolverImpl.kt` | Add resolve logic |
-| 8 | Compose | `androidApp/…` | Add Composable mapping |
+| 8 | Compose | `androidApp/…/renderer/components/ButtonRenderer.kt` + `UiRenderer.kt` | Add Composable mapping |
 | 9 | Tests | `shared/src/…Test/…` | Add mapper + resolver tests |
 
 ---
@@ -192,7 +192,7 @@ is ButtonDefinitionDto -> ButtonDefinition(
 
 ## Step 6 — Runtime Node
 
-**File:** `shared/src/commonMain/kotlin/com/dynamicui/shared/model/ButtonNode.kt`
+**File:** `shared/src/commonMain/kotlin/com/dynamicui/shared/model/node/ButtonNode.kt`
 
 Runtime nodes hold **resolved** values — no `StyleId`, no `BindingKey`:
 
@@ -205,7 +205,7 @@ data class ButtonNode(
 ) : UiNode
 ```
 
-**Pattern to copy:** `TextNode.kt`
+**Pattern to copy:** `model/node/TextNode.kt`
 
 Every `UiNode` must have:
 
@@ -269,34 +269,50 @@ Container components (stack, card, list) also call `resolveChildren()` — Butto
 
 ## Step 8 — Compose Renderer
 
-**Location:** `androidApp/` (not `shared`)
+**Location:** `androidApp/src/main/kotlin/com/dynamicui/renderer/`
 
-Map the new node type to a Composable:
+### 8a — Add a component renderer
+
+**File:** `…/renderer/components/ButtonRenderer.kt`
 
 ```kotlin
 @Composable
-fun RenderNode(node: UiNode, onAction: (UiAction) -> Unit) {
-    when (node) {
-        is ButtonNode -> Button(
-            onClick = { node.action?.let(onAction) },
-            modifier = node.style.toModifier(),
-        ) {
-            Text(node.label)
-        }
-        is TextNode -> …
-        is ImageNode -> …
-        // other node types
+fun ButtonRenderer(
+    node: ButtonNode,
+    modifier: Modifier = Modifier,
+    onAction: (UiAction) -> Unit = {},
+) {
+    Button(
+        onClick = { node.action?.let(onAction) },
+        modifier = modifier
+            .then(node.style.toModifier())
+            .clickableAction(node.action, onAction),
+    ) {
+        Text(node.label)
     }
 }
+```
+
+### 8b — Register in `UiRenderer`
+
+**File:** `…/renderer/UiRenderer.kt`
+
+```kotlin
+is ButtonNode ->
+    ButtonRenderer(
+        node = node,
+        modifier = modifier,
+        onAction = onAction,
+    )
 ```
 
 **Rules:**
 
 - `shared` never imports Compose
-- Action execution (navigate, toast) happens here, not in `shared`
-- Style → Modifier mapping is an Android concern
+- Action execution (navigate, toast) stays in ViewModels / screens via `UiEvent`
+- Style → Modifier mapping uses existing mappers under `renderer/mappers`
 
-> **Current state:** The Compose renderer is not implemented yet. `MainActivity` shows a placeholder. When you add it, this `when` block is where new node types go.
+**Pattern to copy:** `TextRenderer.kt` and the `TextNode` branch in `UiRenderer.kt`.
 
 ---
 
@@ -362,7 +378,7 @@ CardNode
 | **Runtime never talks to network** | Resolver reads registries and feed item data only |
 | **Don't leak DTOs** | DTO imports stay inside `data/` |
 | **Register serialization** | Every new DTO needs a `subclass()` in `SerializationModule` |
-| **Exhaustive when blocks** | Add branches in both `mapComponent()` and `resolveComponent()` |
+| **Exhaustive when blocks** | Add branches in `mapComponent()`, `resolveComponent()`, and `UiRenderer` |
 
 ---
 
@@ -384,13 +400,13 @@ Place tests in the shared module test source set.
 
 Use these as copy-paste starting points:
 
-| Component | DTO | Definition | Node | Has children? |
-|-----------|-----|------------|------|---------------|
-| Text | `TextDefinitionDto` | `TextDefinition` | `TextNode` | No |
-| Image | `ImageDefinitionDto` | `ImageDefinition` | `ImageNode` | No |
-| Stack | `StackDefinitionDto` | `StackDefinition` | `StackNode` | Yes |
-| Card | `CardDefinitionDto` | `CardDefinition` | `CardNode` | Yes |
-| List | `ListDefinitionDto` | `ListDefinition` | `ListNode` | Yes |
+| Component | DTO | Definition | Node | Compose | Has children? |
+|-----------|-----|------------|------|---------|---------------|
+| Text | `TextDefinitionDto` | `TextDefinition` | `TextNode` | `TextRenderer` | No |
+| Image | `ImageDefinitionDto` | `ImageDefinition` | `ImageNode` | `ImageRenderer` | No |
+| Stack | `StackDefinitionDto` | `StackDefinition` | `StackNode` | `StackRenderer` | Yes |
+| Card | `CardDefinitionDto` | `CardDefinition` | `CardNode` | `CardRenderer` | Yes |
+| List | `ListDefinitionDto` | `ListDefinition` | `ListNode` | `ListRenderer` | Yes |
 
 Leaf components (text, image, button) resolve their own content.
 Container components (stack, card, list) call `resolveChildren()` recursively.
@@ -404,4 +420,5 @@ Container components (stack, card, list) call `resolveChildren()` recursively.
 | JSON field reference | [backend-contract.md](./backend-contract.md) |
 | How rendering works | [renderer-flow.md](./renderer-flow.md) |
 | Project structure | [architecture.md](./architecture.md) |
-| Contribution rules | [contributing.md](./contributing.md) |
+| Full file listing | [module-structure.md](./module-structure.md) |
+| What's planned next? | [roadmap.md](./roadmap.md) |

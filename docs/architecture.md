@@ -2,7 +2,7 @@
 
 **Dynamic UI Renderer** is a Kotlin Multiplatform project that renders UI from backend JSON instead of hard-coded screens.
 
-A server sends layout templates and screen content. The **shared** module fetches that data, resolves bindings, and produces a **`UiNode` tree** — a platform-agnostic description of what to display. The **androidApp** module is the native Android shell built with Jetpack Compose.
+A server sends layout templates and screen content. The **shared** module fetches that data, resolves bindings, and produces a **`UiNode` tree** — a platform-agnostic description of what to display. The **androidApp** module maps those nodes to Jetpack Compose and handles actions (navigate, toast).
 
 This approach lets teams update layouts and content without shipping a new app version for every UI change.
 
@@ -30,7 +30,7 @@ graph TB
     Shared --> Android
 ```
 
-The backend owns UI structure and data. Shared turns that into `UiNode` trees. Android is responsible for drawing them on screen.
+The backend owns UI structure and data. Shared turns that into `UiNode` trees. Android draws them and executes actions.
 
 ---
 
@@ -38,28 +38,34 @@ The backend owns UI structure and data. Shared turns that into `UiNode` trees. A
 
 ```text
 DynamicUiRenderer/
-├── shared/          # KMP rendering engine
-│   ├── data/        # Network, DTOs, mappers, repository implementations
-│   ├── domain/      # Models, repository interfaces, use cases, value objects
-│   ├── definition/  # Component templates (text, image, stack, card, list)
-│   ├── runtime/     # Registries, binding resolver, runtime resolver
-│   ├── model/       # Resolved UiNode tree + Orientation
-│   ├── style/       # Resolved style properties
-│   └── factory/     # RendererFactory and Renderer (public API)
+├── shared/              # KMP rendering engine (commonMain)
+│   ├── bootstrap/       # DynamicUi + DynamicUiRenderer (public API)
+│   ├── data/            # Network, DTOs, mappers, repository implementations
+│   ├── domain/          # Models, repository interfaces, use cases, value objects
+│   ├── definition/      # Component templates (text, image, stack, card, list)
+│   ├── runtime/         # Registries, binding resolver, runtime resolver
+│   └── model/           # Resolved output types
+│       ├── node/        # UiNode tree (Text, Image, Stack, Card, List)
+│       ├── style/       # Style, Dimension, EdgeInsets, etc.
+│       ├── action/      # NavigateAction, ToastAction
+│       └── common/      # Orientation
 │
-└── androidApp/      # Android app — Compose UI, Dagger Hilt
+└── androidApp/          # Android app — Compose UI, Hilt, UiRenderer
 ```
 
 | Folder | What it does |
 |--------|--------------|
+| `bootstrap/` | Public entry points — `DynamicUi.createRenderer()` → `DynamicUiRenderer` |
 | `data/` | Talks to the backend, deserializes JSON, maps DTOs to domain types |
 | `domain/` | Business rules — use cases, domain models, repository contracts |
 | `definition/` | Reusable layout templates fetched from the server |
 | `runtime/` | Caches definitions, resolves bindings and styles into nodes |
-| `model/` | Output types — the resolved `UiNode` tree ready for display |
-| `style/` | Visual properties (colors, padding, corner radius, etc.) |
-| `factory/` | Wires everything together; exposes `Renderer` |
-| `androidApp/` | Android presentation layer (Compose + Hilt) |
+| `model/node/` | Output types — the resolved `UiNode` tree ready for display |
+| `model/style/` | Visual properties (colors, padding, dimensions, alignment, etc.) |
+| `model/action/` | Actions attached to nodes (`Navigate`, `Toast`) |
+| `androidApp/` | Compose screens, ViewModels, Hilt, and `UiRenderer` |
+
+For a full file listing, see [module-structure.md](./module-structure.md).
 
 ---
 
@@ -75,6 +81,7 @@ graph TD
     E --> F["Runtime Resolver"]
     C --> F
     F --> G["UiNode Tree"]
+    G --> H["UiRenderer (Compose)"]
 ```
 
 **Initialization (first call only)**
@@ -89,6 +96,12 @@ graph TD
 2. For each feed item, look up its layout in the registry
 3. Resolve bindings (dynamic text/URLs) and styles
 4. Return a `List<UiNode>` — one tree root per feed item
+
+**Android presentation**
+
+1. ViewModels call `DynamicUiRenderer.resolveScreen(screenId)`
+2. `UiRenderer` maps each `UiNode` to a Compose widget
+3. Tap handlers execute `NavigateAction` / `ToastAction`
 
 ---
 
@@ -121,7 +134,7 @@ In-memory caches for definitions.
 
 Populated during initialization, read during screen resolution.
 
-### Renderer
+### DynamicUiRenderer
 
 The single entry point for the shared module. Call `resolveScreen(screenId)` and get back `List<UiNode>`. Definition loading happens automatically on the first call — callers never manage initialization themselves.
 
@@ -132,15 +145,15 @@ The single entry point for the shared module. Call `resolveScreen(screenId)` and
 Android (or any consumer) should only interact with the renderer through:
 
 ```kotlin
-val renderer = RendererFactory().create()
+val renderer = DynamicUi.createRenderer()
 val nodes: List<UiNode> = renderer.resolveScreen("home")
 ```
 
-- **`RendererFactory`** — builds the dependency graph (network, repos, registries, use cases)
-- **`Renderer`** — hides initialization and use cases behind one method
+- **`DynamicUi`** — public factory; calls internal `RendererFactory`
+- **`DynamicUiRenderer`** — hides initialization and use cases behind `resolveScreen`
 - **`screenId`** — a plain `String` (e.g. `"home"`), because screen IDs are backend-owned
 
-Everything else — APIs, mappers, registries, resolvers — is internal to `shared`.
+In `androidApp`, Hilt provides `DynamicUiRenderer` via `DynamicUiModule`. Everything else — APIs, mappers, registries, resolvers — is internal to `shared`.
 
 ---
 
@@ -153,7 +166,7 @@ Everything else — APIs, mappers, registries, resolvers — is internal to `sha
 | **Registries** | Definitions change rarely — fetch once, cache in memory, reuse across screens. |
 | **Value objects** | `ComponentId`, `LayoutId`, `StyleId`, `BindingKey` prevent mixing up identifiers. |
 | **`String` for screen IDs** | Screens are backend-driven; no client recompile when new screens are added. |
-| **Renderer as public API** | One method, one responsibility — consumers don't touch use cases or networking. |
+| **`DynamicUiRenderer` as public API** | One method, one responsibility — consumers don't touch use cases or networking. |
 | **Two use cases** | `InitializeDefinitionsUseCase` (load templates) and `ResolveScreenUseCase` (render a screen). |
 | **Shared has no Compose** | Rendering logic is platform-agnostic; only `androidApp` knows about Compose. |
 | **Hilt in Android only** | DI is a platform concern; the shared module stays framework-free. |
@@ -184,7 +197,7 @@ Everything else — APIs, mappers, registries, resolvers — is internal to `sha
 
 ### Supported actions
 
-Actions are attached to nodes during resolution. The shared module carries them; execution is a platform concern.
+Actions are attached to nodes during resolution. The shared module carries them; `androidApp` executes them via `UiEvent` (navigate / toast).
 
 | Action | Payload |
 |--------|---------|
@@ -202,15 +215,18 @@ Actions are attached to nodes during resolution. The shared module carries them;
 | `GET /ui-definitions` | Layout templates and styles |
 | `GET /feed/{screenId}` | Screen content |
 
+Base URL (emulator): `http://10.0.2.2:3000/mock/dynui`
+
 ---
 
 ## Related Documentation
 
 | Document | Contents |
 |----------|----------|
+| [module-structure.md](./module-structure.md) | Full package and file listing |
 | [renderer-flow.md](./renderer-flow.md) | Detailed step-by-step rendering pipeline |
 | [backend-contract.md](./backend-contract.md) | JSON schemas and API contract |
-| [v1-decisions.md](./v1-decisions.md) | Key architectural decisions |
+| [adding-a-component.md](./adding-a-component.md) | How to add a new component type |
 | [roadmap.md](./roadmap.md) | Future improvements |
 
 ---

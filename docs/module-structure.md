@@ -13,7 +13,6 @@ flowchart TB
         NAV["com.dynamicui.navigation"]
         PRES["com.dynamicui.presentation"]
         REN["com.dynamicui.renderer"]
-        ASSETS["assets/"]
         RES["res/"]
     end
 
@@ -54,8 +53,6 @@ androidApp/
 └── src/main/
     ├── AndroidManifest.xml
     ├── kotlin/
-    │   ├── assets/
-    │   │   └── feed.json
     │   └── com/dynamicui/
     │       ├── app/
     │       │   ├── DynamicUiApplication.kt
@@ -119,17 +116,16 @@ androidApp/
 | Package | Files | Role |
 |---|---|---|
 | `com.dynamicui.app` | 2 | Application entry + `MainActivity` |
-| `com.dynamicui.di` | 1 | Hilt DI wiring |
+| `com.dynamicui.di` | 1 | Hilt DI wiring (`DynamicUi.createRenderer()`) |
 | `com.dynamicui.navigation` | 4 | Nav graph, destinations, navigator |
 | `com.dynamicui.presentation.common` | 2 | Shared UI state & events |
 | `com.dynamicui.presentation.home` | 2 | Home screen + ViewModel |
 | `com.dynamicui.presentation.details` | 2 | Details screen + ViewModel |
-| `com.dynamicui.renderer` | 1 | Root renderer |
+| `com.dynamicui.renderer` | 1 | Root `UiRenderer` (UiNode → Compose) |
 | `com.dynamicui.renderer.components` | 5 | Per-node Compose renderers |
 | `com.dynamicui.renderer.mappers` | 5 | Style/layout → Compose mappers |
-| `com.dynamicui.renderer.action` | 1 | Action handling extensions |
+| `com.dynamicui.renderer.action` | 1 | Clickable action helpers |
 | `com.dynamicui.renderer.extensions` | 1 | EdgeInsets helpers |
-| `assets/` | 1 | Local `feed.json` |
 | `res/` | ~15 | Launcher icons, strings, network config |
 
 ### Package diagram
@@ -144,10 +140,6 @@ flowchart LR
 
         subgraph kotlin["src/main/kotlin/"]
             direction TB
-
-            subgraph assets["assets/"]
-                FJ["feed.json"]
-            end
 
             subgraph com_dynamicui["com.dynamicui"]
                 direction TB
@@ -228,7 +220,7 @@ flowchart LR
 
 **Root:** `shared/`  
 **Namespace:** `com.dynamicui.shared`  
-**Source sets:** `commonMain` (75 Kotlin files), `androidMain` (empty — platform hook only)
+**Source sets:** `commonMain` (77 Kotlin files), `androidMain` (empty — platform hook only)
 
 ### File tree
 
@@ -241,7 +233,7 @@ shared/
         ├── bootstrap/
         │   ├── DynamicUi.kt
         │   ├── DynamicUiRenderer.kt
-        │   └── RendererFactory.kt
+        │   └── RendererFactory.kt      (internal)
         ├── data/
         │   ├── dto/
         │   │   ├── action/
@@ -308,18 +300,24 @@ shared/
         │       ├── UiValue.kt
         │       └── UiValueExtensions.kt
         ├── model/
-        │   ├── CardNode.kt
-        │   ├── CornerRadius.kt
-        │   ├── Dimension.kt
-        │   ├── EdgeInsets.kt
-        │   ├── ImageNode.kt
-        │   ├── ListNode.kt
-        │   ├── Orientation.kt
-        │   ├── StackNode.kt
-        │   ├── Style.kt
-        │   ├── TextNode.kt
-        │   ├── UiAction.kt
-        │   └── UiNode.kt
+        │   ├── action/
+        │   │   └── UiAction.kt
+        │   ├── common/
+        │   │   └── Orientation.kt
+        │   ├── node/
+        │   │   ├── CardNode.kt
+        │   │   ├── ImageNode.kt
+        │   │   ├── ListNode.kt
+        │   │   ├── StackNode.kt
+        │   │   ├── TextNode.kt
+        │   │   └── UiNode.kt
+        │   └── style/
+        │       ├── Alignment.kt
+        │       ├── CornerRadius.kt
+        │       ├── Dimension.kt
+        │       ├── EdgeInsets.kt
+        │       ├── FontWeight.kt
+        │       └── Style.kt
         └── runtime/
             ├── binding/
             │   ├── BindingContext.kt
@@ -341,7 +339,7 @@ shared/
 
 | Package | Files | Role |
 |---|---|---|
-| `bootstrap` | 3 | Public API entry points |
+| `bootstrap` | 3 | Public API (`DynamicUi`, `DynamicUiRenderer`); `RendererFactory` is internal |
 | `data.dto.action` | 1 | Action wire format |
 | `data.dto.definitions` | 9 | UI definition DTOs |
 | `data.dto.feed` | 2 | Feed wire format |
@@ -354,7 +352,10 @@ shared/
 | `domain.repository` | 2 | Repository interfaces |
 | `domain.usecase` | 2 | Business logic use cases |
 | `domain.value` | 10 | Typed binding values |
-| `model` | 12 | Resolved UI tree nodes |
+| `model.action` | 1 | Resolved actions (`Navigate`, `Toast`) |
+| `model.common` | 1 | Shared enums (`Orientation`) |
+| `model.node` | 6 | Resolved UI tree nodes |
+| `model.style` | 6 | Resolved style types |
 | `runtime.binding` | 3 | Data binding resolution |
 | `runtime.registry` | 4 | Layout & style registries |
 | `runtime.resolver` | 2 | UI runtime resolution |
@@ -370,7 +371,7 @@ flowchart TB
         subgraph bootstrap["bootstrap"]
             B1["DynamicUi.kt"]
             B2["DynamicUiRenderer.kt"]
-            B3["RendererFactory.kt"]
+            B3["RendererFactory.kt (internal)"]
         end
 
         subgraph data_layer["data"]
@@ -458,18 +459,29 @@ flowchart TB
         end
 
         subgraph model_pkg["model"]
-            MO1["CardNode.kt"]
-            MO2["CornerRadius.kt"]
-            MO3["Dimension.kt"]
-            MO4["EdgeInsets.kt"]
-            MO5["ImageNode.kt"]
-            MO6["ListNode.kt"]
-            MO7["Orientation.kt"]
-            MO8["StackNode.kt"]
-            MO9["Style.kt"]
-            MO10["TextNode.kt"]
-            MO11["UiAction.kt"]
-            MO12["UiNode.kt"]
+            direction TB
+            subgraph model_action["action"]
+                MA1["UiAction.kt"]
+            end
+            subgraph model_common["common"]
+                MC1["Orientation.kt"]
+            end
+            subgraph model_node["node"]
+                MN1["UiNode.kt"]
+                MN2["TextNode.kt"]
+                MN3["ImageNode.kt"]
+                MN4["StackNode.kt"]
+                MN5["CardNode.kt"]
+                MN6["ListNode.kt"]
+            end
+            subgraph model_style["style"]
+                MS1["Style.kt"]
+                MS2["Dimension.kt"]
+                MS3["EdgeInsets.kt"]
+                MS4["CornerRadius.kt"]
+                MS5["Alignment.kt"]
+                MS6["FontWeight.kt"]
+            end
         end
 
         subgraph runtime["runtime"]
@@ -535,8 +547,8 @@ flowchart TB
 
 | Module | Kotlin files | Other notable files |
 |---|---|---|
-| **androidApp** | 27 | `build.gradle.kts`, `AndroidManifest.xml`, `feed.json`, ~15 `res/` assets |
-| **shared** | 75 | `build.gradle.kts`, empty `androidMain/` |
+| **androidApp** | 26 | `build.gradle.kts`, `AndroidManifest.xml`, ~15 `res/` assets |
+| **shared** | 77 | `build.gradle.kts`, empty `androidMain/` |
 
 ## End-to-end data flow
 
@@ -549,9 +561,9 @@ sequenceDiagram
     participant RT as runtime
     participant Ren as androidApp.renderer
 
-    App->>Boot: Initialize via DynamicUi / RendererFactory
+    App->>Boot: DynamicUi.createRenderer()
     Boot->>UC: InitializeDefinitionsUseCase
-    UC->>Data: Fetch definitions & feed (API → DTO → mapper)
+    UC->>Data: Fetch definitions (API → DTO → mapper)
     Data->>RT: Register layouts & styles
     App->>UC: ResolveScreenUseCase
     UC->>RT: Resolve bindings → UiNode tree

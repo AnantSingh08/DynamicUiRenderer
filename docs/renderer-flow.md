@@ -16,7 +16,7 @@ graph TD
     E --> F["Runtime Resolver"]
     C --> F
     F --> G["UiNode"]
-    G --> H["Compose Renderer"]
+    G --> H["UiRenderer (Compose)"]
 ```
 
 | Stage | Module | What happens |
@@ -27,10 +27,10 @@ graph TD
 | Feed API | `shared/data` | HTTP GET `/feed/{screenId}` |
 | Feed Repository | `shared/data` | API → mapper → domain |
 | Runtime Resolver | `shared/runtime` | Layout + feed item → `UiNode` tree |
-| UiNode | `shared/model` | Resolved, platform-agnostic UI tree |
-| Compose Renderer | `androidApp` | `UiNode` → Jetpack Compose widgets |
+| UiNode | `shared/model/node` | Resolved, platform-agnostic UI tree |
+| UiRenderer | `androidApp/renderer` | `UiNode` → Jetpack Compose widgets |
 
-Everything through **UiNode** is implemented in `shared`. **Compose Renderer** is the Android presentation step — where `UiNode` trees become Composables on screen.
+Everything through **UiNode** is implemented in `shared`. **UiRenderer** is the Android presentation step — where `UiNode` trees become Composables on screen.
 
 ---
 
@@ -39,17 +39,17 @@ Everything through **UiNode** is implemented in `shared`. **Compose Renderer** i
 All rendering starts with one call:
 
 ```kotlin
-val renderer = RendererFactory().create()
+val renderer = DynamicUi.createRenderer()
 val nodes: List<UiNode> = renderer.resolveScreen("home")
 ```
 
 | Piece | Class | Role |
 |-------|-------|------|
-| Factory | `RendererFactory` | Wires the full dependency graph once |
-| Public API | `Renderer` | Hides initialization; returns `List<UiNode>` |
+| Public factory | `DynamicUi` | Calls internal `RendererFactory` |
+| Public API | `DynamicUiRenderer` | Hides initialization; returns `List<UiNode>` |
 | Screen ID | `String` | Backend-owned identifier, e.g. `"home"` |
 
-You never call use cases, APIs, or registries directly.
+In `androidApp`, Hilt injects `DynamicUiRenderer` into ViewModels. You never call use cases, APIs, or registries directly.
 
 ---
 
@@ -58,13 +58,14 @@ You never call use cases, APIs, or registries directly.
 ```mermaid
 sequenceDiagram
     participant App as Android App
-    participant R as Renderer
+    participant R as DynamicUiRenderer
     participant Init as InitializeDefinitionsUseCase
     participant Resolve as ResolveScreenUseCase
     participant DefRepo as DefinitionsRepository
     participant FeedRepo as FeedRepository
     participant Reg as Registries
     participant Res as UiRuntimeResolver
+    participant UI as UiRenderer
 
     App->>R: resolveScreen("home")
     R->>R: ensureInitialized()
@@ -88,7 +89,7 @@ sequenceDiagram
 
     Resolve-->>R: List<UiNode>
     R-->>App: List<UiNode>
-    App->>App: Compose Renderer draws trees
+    App->>UI: UiRenderer draws trees + handles actions
 ```
 
 ---
@@ -107,11 +108,12 @@ DefinitionsApi
 
 ### Step by step
 
-1. **`DefinitionsApi`** — `GET http://10.0.2.2:3000/ui-definitions`, deserializes to `UiDefinitionsDto`
+1. **`DefinitionsApi`** — `GET …/ui-definitions`, deserializes to `UiDefinitionsDto`
 2. **`DefinitionsRepositoryImpl`** — calls API, passes DTO to mapper, returns `UiDefinitions`
 3. **`UiDefinitionsMapperImpl`** — converts DTOs to domain types:
    - `String` ids → `LayoutId`, `StyleId`, `ComponentId`
    - JSON components → `TextDefinition`, `ImageDefinition`, `StackDefinition`, etc.
+   - JSON styles → `Style` via `StyleValueMapper` (dimensions, insets, alignment, font weight)
    - JSON actions → `NavigateAction`, `ToastAction` via `ActionMapper`
 4. **`InitializeDefinitionsUseCase`** — writes into registries:
    - `layoutRegistry.registerLayouts(definitions.layouts)`
@@ -124,7 +126,7 @@ DefinitionsApi
 | `LayoutRegistry` | Layout templates | `LayoutId` |
 | `StyleRegistry` | Style properties | `StyleId` |
 
-Definitions stay in memory for the lifetime of the `Renderer` instance.
+Definitions stay in memory for the lifetime of the `DynamicUiRenderer` instance.
 
 ---
 
@@ -210,7 +212,7 @@ Definitions reference styles by ID. Runtime nodes carry the **resolved** style o
 ```text
 TextDefinition.styleId = StyleId("card_title")
     → StyleRegistry.getStyle(styleId)
-    → Style(textColor = "#FFFFFF", padding = 16, ...)
+    → Style(textColor = "#FFFFFF", padding = EdgeInsets(...), ...)
     → TextNode.style = Style(...)
 ```
 
@@ -220,7 +222,7 @@ TextDefinition.styleId = StyleId("card_title")
 | `styleId` null | `node.style = null` |
 | Style ID not in registry | `node.style = null` |
 
-Styles are loaded during Phase 1 and never re-fetched per screen.
+Styles are loaded during Phase 1 and never re-fetched per screen. See [backend-contract.md](./backend-contract.md) for the full style field list (`width`, `height`, `padding`, `margin`, `fontWeight`, `alignment`, etc.).
 
 ---
 
@@ -230,10 +232,10 @@ Actions are **not executed** in `shared`. They are **passed through** from defin
 
 | Action | On the node | Executed by |
 |--------|-------------|-------------|
-| `NavigateAction` | `destination: String`, `params: Map<String, String>` | Compose Renderer (Android) |
-| `ToastAction` | `message: String` | Compose Renderer (Android) |
+| `NavigateAction` | `destination: String`, `params: Map<String, String>` | `androidApp` via `UiEvent.Navigate` |
+| `ToastAction` | `message: String` | `androidApp` via `UiEvent.ShowToast` |
 
-The shared module's job ends at attaching `action: UiAction?` to each `UiNode`. Tapping a node and triggering navigation or a toast is the Android layer's responsibility.
+The shared module's job ends at attaching `action: UiAction?` to each `UiNode`. Screens collect ViewModel events and run navigation or show a toast.
 
 ---
 
@@ -244,7 +246,7 @@ The final product of `shared`. A fully resolved tree — no raw IDs, no unresolv
 Every node has:
 
 ```kotlin
-interface UiNode {
+sealed interface UiNode {
     val id: ComponentId
     val style: Style?
     val action: UiAction?
@@ -277,32 +279,31 @@ The last step lives in **`androidApp`**, not `shared`.
 
 ```text
 List<UiNode>
-    → when (node) { is TextNode → Text(...) … }
+    → UiRenderer(nodes, onAction)
+    → when (node) { is TextNode → TextRenderer … }
     → Jetpack Compose UI on screen
 ```
 
 | Responsibility | Owner |
 |----------------|-------|
-| Produce `UiNode` trees | `shared` |
-| Map `UiNode` → Composables | `androidApp` |
-| Handle tap → `NavigateAction` / `ToastAction` | `androidApp` |
+| Produce `UiNode` trees | `shared` (`DynamicUiRenderer`) |
+| Map `UiNode` → Composables | `androidApp` (`UiRenderer` + component renderers) |
+| Handle tap → navigate / toast | `androidApp` (ViewModels → `UiEvent`) |
 
-This is a `@Composable` function (or set of functions) that pattern-matches on `UiNode` subtypes and renders the matching Compose widget — similar to how `UiRuntimeResolverImpl` pattern-matches on `ComponentDefinition`.
-
-> **Current state:** `shared` fully produces `UiNode` trees. `androidApp` has Jetpack Compose set up but does not yet call `Renderer` or render `UiNode` trees — `MainActivity` shows a placeholder. The Compose Renderer is the intended final step in this pipeline.
+Home and Details screens already call `UiRenderer` with resolved nodes. Component renderers live under `com.dynamicui.renderer.components`; style mapping helpers live under `com.dynamicui.renderer.mappers`.
 
 ---
 
 ## Initialization State
 
-`Renderer` tracks whether definitions have been loaded:
+`DynamicUiRenderer` tracks whether definitions have been loaded:
 
 ```text
 NotInitialized  →  first resolveScreen() loads definitions
 Initialized     →  subsequent calls skip the definitions fetch
 ```
 
-State is internal to `Renderer`. Callers never manage it.
+State is internal to `DynamicUiRenderer`. Callers never manage it.
 
 ---
 
@@ -313,7 +314,7 @@ Quick lookup — which class owns each stage:
 | Stage | Key classes |
 |-------|-------------|
 | Definitions API | `DefinitionsApi`, `ApiConfig` |
-| Definitions Repository | `DefinitionsRepositoryImpl`, `UiDefinitionsMapperImpl` |
+| Definitions Repository | `DefinitionsRepositoryImpl`, `UiDefinitionsMapperImpl`, `StyleValueMapper` |
 | Feed API | `FeedApi` |
 | Feed Repository | `FeedRepositoryImpl`, `FeedMapperImpl`, `ActionMapper` |
 | Registries | `LayoutRegistryImpl`, `StyleRegistryImpl` |
@@ -321,8 +322,8 @@ Quick lookup — which class owns each stage:
 | Binding | `BindingResolverImpl` |
 | Runtime | `UiRuntimeResolverImpl` |
 | Output | `TextNode`, `ImageNode`, `StackNode`, `CardNode`, `ListNode` |
-| Public API | `RendererFactory`, `Renderer` |
-| Compose | `androidApp` presentation layer |
+| Public API | `DynamicUi`, `DynamicUiRenderer` |
+| Compose | `UiRenderer`, component renderers, mappers |
 
 ---
 
@@ -341,7 +342,7 @@ It is silently dropped (`mapNotNull` returns null). The rest of the feed still r
 Each feed item is an independent card/row with its own layout. The list length matches the feed item count.
 
 **Can I call `resolveScreen()` from iOS?**
-The pipeline is in `shared/commonMain`. Any platform that depends on `shared` gets the same `Renderer` API. Only the Compose Renderer step is Android-specific.
+The pipeline is in `shared/commonMain`. Any platform that depends on `shared` gets the same `DynamicUiRenderer` API. Only the Compose / `UiRenderer` step is Android-specific.
 
 ---
 
@@ -350,6 +351,7 @@ The pipeline is in `shared/commonMain`. Any platform that depends on `shared` ge
 | Question | Document |
 |----------|----------|
 | How is the project structured? | [architecture.md](./architecture.md) |
+| Full file listing? | [module-structure.md](./module-structure.md) |
 | What JSON does the backend send? | [backend-contract.md](./backend-contract.md) |
 | How do I add a new component? | [adding-a-component.md](./adding-a-component.md) |
 | What's planned next? | [roadmap.md](./roadmap.md) |

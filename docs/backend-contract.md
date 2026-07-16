@@ -13,7 +13,12 @@ For how this data is consumed, see [renderer-flow.md](./renderer-flow.md).
 | `GET` | `/ui-definitions` | `UiDefinitionsDto` |
 | `GET` | `/feed/{screenId}` | `FeedDto` |
 
-**Base URL (Android emulator):** `http://10.0.2.2:3000`
+**Base URL (Android emulator):** `http://10.0.2.2:3000/mock/dynui`
+
+Full paths:
+
+- `GET http://10.0.2.2:3000/mock/dynui/ui-definitions`
+- `GET http://10.0.2.2:3000/mock/dynui/feed/{screenId}`
 
 ---
 
@@ -65,22 +70,41 @@ Returns reusable layout templates and styles.
 ```json
 {
   "id": "card_title",
+  "width": "wrap",
+  "height": "wrap",
+  "padding": "8,8,8,8",
+  "margin": "0,0,0,0",
+  "spacing": 8,
   "backgroundColor": "#FFFFFF",
-  "textColor": "#000000",
-  "padding": 16,
-  "cornerRadius": 8
+  "textColor": "#212121",
+  "fontSize": 16,
+  "fontWeight": "bold",
+  "cornerRadius": "8,8,8,8",
+  "alignment": "start"
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | `string` | yes | Unique style identifier |
+| `width` | `string` | no | `"fill"`, `"wrap"`, or a fixed dp integer as string (e.g. `"120"`) |
+| `height` | `string` | no | Same as `width` |
+| `padding` | `string` | no | Four comma-separated ints: `top,right,bottom,left` |
+| `margin` | `string` | no | Four comma-separated ints: `top,right,bottom,left` |
+| `spacing` | `int` | no | Gap between children in dp (for stacks/lists) |
 | `backgroundColor` | `string` | no | CSS-style color string |
 | `textColor` | `string` | no | CSS-style color string |
-| `padding` | `int` | no | Padding in dp |
-| `cornerRadius` | `int` | no | Corner radius in dp |
+| `fontSize` | `int` | no | Font size in sp |
+| `fontWeight` | `string` | no | `"normal"`, `"medium"`, `"semibold"`, or `"bold"` |
+| `cornerRadius` | `string` | no | Four comma-separated ints: `topStart,topEnd,bottomEnd,bottomStart` |
+| `alignment` | `string` | no | `"start"`, `"center"`, or `"end"` |
 
 Components reference styles via `"styleId": "card_title"`.
+
+**Parsing notes:**
+
+- Invalid `width` / `height` / `fontWeight` / `alignment` values throw at map time
+- `padding`, `margin`, and `cornerRadius` require exactly four comma-separated integers
 
 ---
 
@@ -222,14 +246,18 @@ Any value other than `"horizontal"` (case-insensitive) is treated as **vertical*
   "styles": [
     {
       "id": "card_container",
+      "width": "fill",
       "backgroundColor": "#FFFFFF",
-      "padding": 16,
-      "cornerRadius": 12
+      "padding": "16,16,16,16",
+      "cornerRadius": "12,12,12,12"
     },
     {
       "id": "card_title",
       "textColor": "#212121",
-      "padding": 8
+      "fontSize": 18,
+      "fontWeight": "bold",
+      "padding": "8,8,8,8",
+      "alignment": "start"
     }
   ]
 }
@@ -431,7 +459,16 @@ Actions are passed through to runtime nodes. Execution (navigation, showing a to
 ```text
 {
   layouts: [{ id, root: Component }],
-  styles:  [{ id, backgroundColor?, textColor?, padding?, cornerRadius? }]
+  styles:  [{
+    id,
+    width?, height?,              // "fill" | "wrap" | "<dp>"
+    padding?, margin?,            // "t,r,b,l"
+    spacing?,
+    backgroundColor?, textColor?,
+    fontSize?, fontWeight?,       // normal|medium|semibold|bold
+    cornerRadius?,                // "ts,te,be,bs"
+    alignment?                    // start|center|end
+  }]
 }
 ```
 
@@ -460,3 +497,4 @@ Actions are passed through to runtime nodes. Execution (navigation, showing a to
 | How is data consumed? | [renderer-flow.md](./renderer-flow.md) |
 | How do I add a component type? | [adding-a-component.md](./adding-a-component.md) |
 | Project structure | [architecture.md](./architecture.md) |
+| Full file listing | [module-structure.md](./module-structure.md) |

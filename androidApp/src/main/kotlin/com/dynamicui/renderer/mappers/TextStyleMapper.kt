@@ -4,6 +4,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.dynamicui.shared.model.style.FontWeight as UiFontWeight
 import androidx.compose.ui.unit.sp
 import com.dynamicui.renderer.mappers.ColorMapper
 import com.dynamicui.shared.model.style.Style
@@ -32,30 +33,30 @@ object TextStyleMapper {
     }
 
     private fun mapFontWeight(
-        value: String?
+        value: UiFontWeight?
     ): FontWeight? {
 
-        return when (value?.lowercase()) {
+        return when (value) {
 
-            "thin" -> FontWeight.Thin
+            UiFontWeight.THIN -> FontWeight.Thin
 
-            "extralight" -> FontWeight.ExtraLight
+            UiFontWeight.EXTRA_LIGHT -> FontWeight.ExtraLight
 
-            "light" -> FontWeight.Light
+            UiFontWeight.LIGHT -> FontWeight.Light
 
-            "normal" -> FontWeight.Normal
+            UiFontWeight.NORMAL -> FontWeight.Normal
 
-            "medium" -> FontWeight.Medium
+            UiFontWeight.MEDIUM -> FontWeight.Medium
 
-            "semibold" -> FontWeight.SemiBold
+            UiFontWeight.SEMIBOLD -> FontWeight.SemiBold
 
-            "bold" -> FontWeight.Bold
+            UiFontWeight.BOLD -> FontWeight.Bold
 
-            "extrabold" -> FontWeight.ExtraBold
+            UiFontWeight.EXTRA_BOLD -> FontWeight.ExtraBold
 
-            "black" -> FontWeight.Black
+            UiFontWeight.BLACK -> FontWeight.Black
 
-            else -> null
+            null -> null
         }
     }
 }

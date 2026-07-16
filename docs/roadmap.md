@@ -20,8 +20,8 @@ What's shipped today and what's planned next.
 
 | Action | Status |
 |--------|--------|
-| Navigate | ✅ Attached to nodes |
-| Toast | ✅ Attached to nodes |
+| Navigate | ✅ Attached to nodes + handled in `androidApp` |
+| Toast | ✅ Attached to nodes + handled in `androidApp` |
 
 ### Shared module
 
@@ -29,9 +29,9 @@ What's shipped today and what's planned next.
 |---------|--------|
 | Definitions API + caching | ✅ |
 | Feed API + binding resolution | ✅ |
-| Style resolution | ✅ |
+| Style resolution (dimensions, insets, font, alignment) | ✅ |
 | Runtime resolver (`UiNode` output) | ✅ |
-| `Renderer.resolveScreen(screenId)` | ✅ |
+| `DynamicUiRenderer.resolveScreen(screenId)` | ✅ |
 
 ### Android app
 
@@ -39,8 +39,9 @@ What's shipped today and what's planned next.
 |---------|--------|
 | Jetpack Compose shell | ✅ |
 | Dagger Hilt setup | ✅ |
-| `UiNode` → Compose renderer | ❌ Not yet wired |
-| Action handling (navigate, toast) | ❌ Not yet wired |
+| `UiNode` → Compose (`UiRenderer`) | ✅ |
+| Action handling (navigate, toast via `UiEvent`) | ✅ |
+| Home + Details screens wired to renderer | ✅ |
 
 ---
 
@@ -55,7 +56,6 @@ What's shipped today and what's planned next.
 ### Platform
 
 - **Animations** — enter/exit transitions on nodes
-- **Compose renderer** — map `UiNode` trees to Composables in `androidApp`
 - **iOS** — SwiftUI renderer consuming `shared`
 - **Web** — Compose Multiplatform or web renderer
 
@@ -72,6 +72,7 @@ What's shipped today and what's planned next.
 | Document | Contents |
 |----------|----------|
 | [architecture.md](./architecture.md) | Project structure |
+| [module-structure.md](./module-structure.md) | Full package and file listing |
 | [renderer-flow.md](./renderer-flow.md) | How rendering works |
 | [adding-a-component.md](./adding-a-component.md) | How to add a new component |
 | [backend-contract.md](./backend-contract.md) | JSON contract |
