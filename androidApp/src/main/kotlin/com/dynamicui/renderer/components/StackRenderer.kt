@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import com.dynamicui.presentation.renderer.modifier.ModifierMapper
 import com.dynamicui.renderer.UiRenderer
 import com.dynamicui.renderer.extensions.padding
+import com.dynamicui.renderer.mappers.AlignmentMapper
 import com.dynamicui.shared.model.Orientation
 import com.dynamicui.shared.model.StackNode
 import com.dynamicui.shared.model.UiAction
@@ -34,7 +35,10 @@ fun StackRenderer(
                         style = node.style,
                         modifier = modifier
                     )
-                    .padding(node.style?.padding)
+                    .padding(node.style?.padding),
+                horizontalAlignment = AlignmentMapper.horizontal(
+                    node.style?.alignment
+                )
             ) {
                 content()
             }
@@ -46,7 +50,10 @@ fun StackRenderer(
                         style = node.style,
                         modifier = modifier
                     )
-                    .padding(node.style?.padding)
+                    .padding(node.style?.padding),
+                verticalAlignment = AlignmentMapper.vertical(
+                    node.style?.alignment
+                )
             ) {
                 content()
             }
