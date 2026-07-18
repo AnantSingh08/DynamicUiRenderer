@@ -38,10 +38,10 @@ class DetailsViewModel @Inject constructor(
         _events.asSharedFlow()
 
     init {
-        loadHome()
+        loadDetails()
     }
 
-    private fun loadHome() {
+    private fun loadDetails() {
 
         viewModelScope.launch {
 

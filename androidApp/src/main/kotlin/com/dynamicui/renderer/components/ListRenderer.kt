@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.dynamicui.presentation.renderer.modifier.ModifierMapper
+import com.dynamicui.presentation.renderer.modifier.applyStyle
 import com.dynamicui.renderer.UiRenderer
 import com.dynamicui.renderer.extensions.padding
 import com.dynamicui.shared.model.node.ListNode
@@ -19,11 +19,8 @@ fun ListRenderer(
     onAction: (UiAction) -> Unit
 ) {
 
-    val mappedModifier = ModifierMapper
-        .map(
-            style = node.style,
-            modifier = modifier
-        )
+    val mappedModifier = modifier
+        .applyStyle(node.style)
         .padding(node.style?.padding)
 
     when (node.orientation) {

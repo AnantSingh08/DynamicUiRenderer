@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import com.dynamicui.presentation.renderer.modifier.ModifierMapper
+import com.dynamicui.presentation.renderer.modifier.applyStyle
 import com.dynamicui.renderer.action.clickableAction
 import com.dynamicui.renderer.mappers.ShapeMapper
 import com.dynamicui.shared.model.node.ImageNode
@@ -18,11 +18,8 @@ fun ImageRenderer(
     onAction: (UiAction) -> Unit
 ) {
 
-    val mappedModifier = ModifierMapper
-        .map(
-            style = node.style,
-            modifier = modifier
-        )
+    val mappedModifier = modifier
+        .applyStyle(node.style)
         .clip(
             ShapeMapper.map(
                 node.style?.cornerRadius

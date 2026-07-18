@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.dynamicui.presentation.renderer.modifier.ModifierMapper
+import com.dynamicui.presentation.renderer.modifier.applyStyle
 import com.dynamicui.renderer.UiRenderer
 import com.dynamicui.renderer.extensions.padding
 import com.dynamicui.renderer.mappers.AlignmentMapper
@@ -26,16 +26,15 @@ fun StackRenderer(
         )
     }
 
+    val stackModifier = modifier
+        .applyStyle(node.style)
+        .padding(node.style?.padding)
+
     when (node.orientation) {
 
         Orientation.VERTICAL ->
             Column(
-                modifier = ModifierMapper
-                    .map(
-                        style = node.style,
-                        modifier = modifier
-                    )
-                    .padding(node.style?.padding),
+                modifier = stackModifier,
                 horizontalAlignment = AlignmentMapper.horizontal(
                     node.style?.alignment
                 )
@@ -45,12 +44,7 @@ fun StackRenderer(
 
         Orientation.HORIZONTAL ->
             Row(
-                modifier = ModifierMapper
-                    .map(
-                        style = node.style,
-                        modifier = modifier
-                    )
-                    .padding(node.style?.padding),
+                modifier = stackModifier,
                 verticalAlignment = AlignmentMapper.vertical(
                     node.style?.alignment
                 )

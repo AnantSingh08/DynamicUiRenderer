@@ -6,7 +6,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.dynamicui.presentation.renderer.modifier.ModifierMapper
+import com.dynamicui.presentation.renderer.modifier.applyStyle
 import com.dynamicui.renderer.UiRenderer
 import com.dynamicui.renderer.action.clickableAction
 import com.dynamicui.renderer.extensions.padding
@@ -22,11 +22,8 @@ fun CardRenderer(
     onAction: (UiAction) -> Unit
 ) {
     Card(
-        modifier = ModifierMapper
-            .map(
-                style = node.style,
-                modifier = modifier
-            )
+        modifier = modifier
+            .applyStyle(node.style)
             .clickableAction(
                 node.action,
                 onAction
